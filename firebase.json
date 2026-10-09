@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "web/dist",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      { "source": "/api/**", "run": { "serviceId": "trustshield-api", "region": "us-central1" } },
+      { "source": "**", "destination": "/index.html" }
+    ]
+  }
+}
