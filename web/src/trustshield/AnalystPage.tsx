@@ -57,6 +57,29 @@ function Detail({ id }: { id: string }) {
           <Gauge label="Network intel" value={a.scores.intel} color="#ae3ec9" />
           <Gauge label="Legit context" value={a.scores.legit} color="var(--pass)" />
         </div>
+        {a.counterfactual && (
+          <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
+            <div className="row between">
+              <b>Decision replay</b>
+              <small>Same policy, transaction signals only vs full context</small>
+            </div>
+            <div className="grid g3" style={{ marginTop: 10 }}>
+              <div className="stat">
+                <span className="v">{(a.counterfactual.behaviour_only.risk * 100).toFixed(1)}%</span>
+                <span className="l">Behavior only · <Badge tone={a.counterfactual.behaviour_only.decision}>{a.counterfactual.behaviour_only.decision}</Badge></span>
+              </div>
+              <div className="stat">
+                <span className="v">{(a.counterfactual.full_context.risk * 100).toFixed(1)}%</span>
+                <span className="l">Full context · <Badge tone={a.counterfactual.full_context.decision}>{a.counterfactual.full_context.decision}</Badge></span>
+              </div>
+              <div className="stat">
+                <span className="v">{a.counterfactual.risk_delta >= 0 ? "+" : ""}{(a.counterfactual.risk_delta * 100).toFixed(1)} pp</span>
+                <span className="l">Risk change after content and intelligence</span>
+              </div>
+            </div>
+            <small className="muted">A deterministic counterfactual for this synthetic assessment, not proof of production accuracy.</small>
+          </div>
+        )}
         {d.case && (
           <div className="row" style={{ marginTop: 14 }}>
             <Badge tone={d.case.status === "open" ? "warning" : d.case.status === "released" ? "ok" : "bad"}>case {d.case.status}</Badge>

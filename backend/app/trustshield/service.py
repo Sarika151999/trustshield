@@ -70,6 +70,9 @@ def assess(req: AssessRequest) -> dict:
     signals = fusion.attribute(b_sig + c_sig + i_sig)
     risk, comps = fusion.score(signals)
     decision, hard_rule = fusion.decide(risk, signals, profile.get("vulnerable", False))
+    behaviour_only = fusion.FusionConfig(use_content=False, use_intel=False)
+    behaviour_risk, _ = fusion.score(b_sig, behaviour_only)
+    behaviour_decision, _ = fusion.decide(behaviour_risk, b_sig, profile.get("vulnerable", False), behaviour_only)
     t.mark("fusion")
 
     iv, e_meta = explain.generate(decision, signals, analysis, profile, req.amount)
@@ -88,6 +91,11 @@ def assess(req: AssessRequest) -> dict:
         "amount": req.amount, "amount_fmt": fmt_inr(req.amount), "note": req.note,
         "context": req.context.model_dump(), "evidence_ids": req.evidence_ids,
         "decision": decision, "final_decision": decision, "hard_rule": hard_rule, "risk": round(risk, 4),
+        "counterfactual": {
+            "behaviour_only": {"risk": round(behaviour_risk, 4), "decision": behaviour_decision},
+            "full_context": {"risk": round(risk, 4), "decision": decision},
+            "risk_delta": round(risk - behaviour_risk, 4),
+        },
         "scores": {k: round(v, 4) for k, v in comps.items()},
         "signals": [x.model_dump() for x in signals],
         "analysis": _analysis_view(analysis),

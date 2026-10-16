@@ -44,6 +44,11 @@ def test_trustshield_scam_is_held_and_case_opened(client):
                                             "note": "KYC refund", "context": {"active_call": True},
                                             "evidence_ids": [ev]}).json()
     assert r["decision"] == "HOLD"
+    replay = r["counterfactual"]
+    assert replay["full_context"] == {"risk": r["risk"], "decision": r["decision"]}
+    assert 0 <= replay["behaviour_only"]["risk"] <= 1
+    assert replay["behaviour_only"]["decision"] in ("PASS", "WARN", "HOLD")
+    assert replay["risk_delta"] == round(r["risk"] - replay["behaviour_only"]["risk"], 4)
     assert "C-17" in r["matched_campaigns"]
     assert any(s["code"] == "beneficiary_known_mule" for s in r["signals"])
     cases = client.get("/api/ts/cases?status=open").json()
