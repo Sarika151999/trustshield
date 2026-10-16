@@ -21,11 +21,20 @@ def _flag(key: str, default: bool) -> bool:
 
 class Settings:
     def __init__(self) -> None:
-        # Gemini: mock | vertex | apikey
-        self.gemini_backend = _env("GEMINI_BACKEND", "mock")
+        # Gemini: mock | vertex | apikey (auto-detect if not explicitly configured)
+        explicit_backend = _env("GEMINI_BACKEND")
+        self.gemini_api_key = _env("GEMINI_API_KEY")
         self.project = _env("GOOGLE_CLOUD_PROJECT")
         self.vertex_location = _env("VERTEX_LOCATION", "us-central1")
-        self.gemini_api_key = _env("GEMINI_API_KEY")
+        if explicit_backend:
+            self.gemini_backend = explicit_backend
+        elif self.gemini_api_key:
+            self.gemini_backend = "apikey"
+        elif _env("K_SERVICE") or self.project:
+            self.gemini_backend = "vertex"
+        else:
+            self.gemini_backend = "mock"
+
         self.fast_model = _env("GEMINI_FAST_MODEL", "gemini-2.5-flash")
         self.deep_model = _env("GEMINI_DEEP_MODEL", "gemini-2.5-pro")
         # If a live Gemini call fails, fall back to the deterministic mock so a demo never dies.

@@ -50,11 +50,26 @@ class Gemini:
         if self.backend == "vertex":
             from google import genai
 
-            self._client = genai.Client(vertexai=True, project=settings.project, location=settings.vertex_location)
+            kwargs: dict[str, Any] = {"vertexai": True}
+            if settings.project:
+                kwargs["project"] = settings.project
+            if settings.vertex_location:
+                kwargs["location"] = settings.vertex_location
+            try:
+                self._client = genai.Client(**kwargs)
+            except Exception as e:
+                log.error("Failed to initialize Vertex AI client: %s", e)
+                if not settings.gemini_fallback:
+                    raise
         elif self.backend == "apikey":
             from google import genai
 
-            self._client = genai.Client(api_key=settings.gemini_api_key)
+            try:
+                self._client = genai.Client(api_key=settings.gemini_api_key)
+            except Exception as e:
+                log.error("Failed to initialize Gemini API client: %s", e)
+                if not settings.gemini_fallback:
+                    raise
 
     @property
     def live(self) -> bool:
