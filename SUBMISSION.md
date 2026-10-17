@@ -175,3 +175,4 @@ TrustShield provides a cohesive, purpose-built interface across three distinct s
 
 ### *Conclusion*
 TrustShield embodies the hackathon's core vision: moving beyond high-level ethics into the messy engineering reality of financial risk. By combining the multimodal reasoning of Google's Gemini models with the deterministic reliability of symbolic rules, TrustShield delivers a scalable, transparent, and humane defense against the epidemic of social engineering fraud.
+
